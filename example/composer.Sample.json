@@ -1,0 +1,11 @@
+{
+    "require": {
+        "netopia/paymentsv2": "^0.0.3",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Src\\": "src/"
+        }
+    }
+}
