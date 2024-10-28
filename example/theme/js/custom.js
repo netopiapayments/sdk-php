@@ -160,7 +160,7 @@ function buildFormRedirecAuthorize(response) {
   form.setAttribute("method", "post");
   form.setAttribute("action", response.customerAction.url);
   form.setAttribute("id", formUniqueID);
-  form.setAttribute("enctype", "multipart/form-data");
+  form.setAttribute("enctype", "application/x-www-form-urlencoded");
 
 
   for (const [key, value] of Object.entries(response.customerAction.formData)) {
