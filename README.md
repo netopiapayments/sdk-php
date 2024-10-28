@@ -1,23 +1,24 @@
 ## Introduction
-The NETOPIA Payment PHP library provides easy access to the NETOPIA Payments API from
+The NETOPIA Payment PHP library provides easy access to the NETOPIA Payments API v2 from
 applications written in the PHP language.
+
+**This repository contains a simple example using pure PHP.**
+
+
 
 ## Compatible
 PHP 5.7.x - 8.0.x
 
 ## API Documention
-* https://alexntp.stoplight.io/docs/api-payments/6530c434c2f93-netopia-payments-merchant-api
+* https://netopia-system.stoplight.io/docs/payments-api/6530c434c2f93-netopia-payments-merchant-api
 
 ## API Specification
 * https://secure.sandbox.netopia-payments.com/spec
 
-## Installation
-To install the library via <a href="https://getcomposer.org/" target="_blank">composer</a>, run the following command:
-* composer require netopia/paymentsv2
+## Do you intrested on php Composer
+The NETOPIA Payments development team has already prepared a PHP Composer package for API v2, available at <a href="https://github.com/netopiapayments/composer/" target="_blank">github / netopiapayments / composer</a>
 
-Or add **"netopia/paymentsv2": "^1.0.0"** to the "require" section in composer.json
-
-## API Actions
+## More about API Actions
 ### Start
 Use this endpoint to start a payment. Based on the response to this call the process either stops or you need to continue with verify_auth
 
