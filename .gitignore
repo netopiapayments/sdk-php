@@ -1,3 +1,4 @@
 example/logs/*.log
 example/vendor/
 example/composer.lock
+.DS_Store
