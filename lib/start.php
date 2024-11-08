@@ -19,7 +19,7 @@ class Start {
                 exit;
             }
 
-            $url = $this->isLive ? 'https://secure.mobilpay.ro/pay/payment/card/start' : 'https://secure.sandbox.netopia-payments.com/payment/card/start';
+            $url = $this->isLive ? 'https://secure.netopia-payments.com/api/payment/card/start' : 'https://secure-sandbox.netopia-payments.com/payment/card/start';
             $ch = curl_init($url);
             
             $headers  = [

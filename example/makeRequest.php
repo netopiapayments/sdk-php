@@ -134,7 +134,9 @@ if($resultObj->status){
              * Card has no 3DS
              */
             setcookie('ntpID', $resultObj->data->payment->ntpID);
-            setcookie('token', $resultObj->data->payment->token);
+            if(isset($resultObj->data->payment->token)) {
+                setcookie('token', $resultObj->data->payment->token);
+            }
         break;
         case 56:
             /**

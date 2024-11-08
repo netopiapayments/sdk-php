@@ -23,7 +23,7 @@ class VerifyAuth extends Request {
 
     // Send request to /payment/card/verify-auth
     public function sendRequestVerifyAuth($jsonStr) {  
-        $url = $this->isLive ? 'https://secure.mobilpay.ro/pay/payment/card/verify-auth' : 'https://secure.sandbox.netopia-payments.com/payment/card/verify-auth';
+        $url = $this->isLive ? 'https://secure.netopia-payments.com/api/payment/card/verify-auth' : 'https://secure-sandbox.netopia-payments.com/payment/card/verify-auth';
         $ch = curl_init($url);
     
         $headers  = [

@@ -13,10 +13,10 @@ class log {
             case 200:
             case 400:
             case 404:
-            case "xx":
                 self::setRealTimeLog($arrLog);
             break;
             default:
+                self::setRealTimeLog($arrLog);
                 self::setBackendLog($log);
         }
     }
@@ -39,6 +39,7 @@ class log {
         $logPoint = rand(1,1000).date(" - H:i:s - ")." | ";
         ob_start();                     // start buffer capture
         echo $logPoint;
+        echo  "\n*************************************************************\n";
         var_dump( $log );               // dump the values
         $contents = ob_get_contents();  // put the buffer into a variable
         ob_end_clean();
@@ -56,7 +57,7 @@ class log {
         foreach($arrLog as $key => $val) {
             $logPoint .= " <b>".$key ." : </b> ". $val;
         }
-        $logPoint .= "</ul>";
+        $logPoint .= "</ul>"."\n";
         echo $logPoint;
         $contents = ob_get_contents();  // put the buffer into a variable
         ob_end_clean();

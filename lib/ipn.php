@@ -64,7 +64,6 @@ class IPN extends Request{
      *  - a Json
      */
     public function verifyIPN() {
-
         /**
         * Definition of default IPN response, 
         * Value will change if there is any problem
@@ -94,7 +93,6 @@ class IPN extends Request{
             exit;
             }
 
-        
         /**
         * Analising the verification token
         * Just to make sure if Type is JWT & Use right encoding/decoding algorithm 
@@ -130,11 +128,11 @@ class IPN extends Request{
             exit;
         }
 
-
         /**
         * Get raw data
         */
         $HTTP_RAW_POST_DATA = file_get_contents('php://input');
+
 
         /**
         * Verify the alg defined in header of JWT
@@ -166,12 +164,35 @@ class IPN extends Request{
              * Check active posSignature 
              * Check if given posSignature is in set of signature too
              */
-            if(empty($objJwt->aud) || current($objJwt->aud) != $this->activeKey){
+            if(empty($objJwt->aud)){
+                throw new \Exception('IDS_Service_IpnController__JWT AUD is Empty');
+                exit;
+            }
+
+            /**
+            * Check the type of JWT AUD, because the "POET" sent it in diffrent type
+            */
+            $actualJwtAud = null;
+            $jwtAudType = gettype($objJwt->aud);
+            switch ($jwtAudType) {
+                case 'array':
+                    $actualJwtAud = $objJwt->aud[0];
+                    break;
+                case 'string':
+                    $actualJwtAud = $objJwt->aud;
+                    break;
+                default:
+                    throw new \Exception('IDS_Service_IpnController__JWT AUD Type is unknown');
+                    exit;
+                    break;
+            }
+
+            if( $actualJwtAud != $this->activeKey){
                 throw new \Exception('IDS_Service_IpnController__INVALID_SIGNATURE'.print_r($objJwt->aud, true).'__'.$this->activeKey);
                 exit;
             }
         
-            if(!in_array(current($objJwt->aud), $this->posSignatureSet,true)) {
+            if(!in_array($actualJwtAud, $this->posSignatureSet,true)) {
                 throw new \Exception('IDS_Service_IpnController__INVALID_SIGNATURE_SET');
                 exit;
             }
@@ -210,14 +231,17 @@ class IPN extends Request{
                 {
                 throw new \Exception('IDS_Service_IpnController__E_VERIFICATION_FAILED_PAYLOAD_FORMAT');
                 }
-            
+
             switch($objIpn->payment->status)
                 {
-                case self::STATUS_NEW:
+                case self::STATUS_NEW:                          // Is new, Do nothing
+                    /**
+                     * Initial status for the payment
+                     */
+                break;
                 case self::STATUS_CHARGEBACK_INIT:              // chargeback initiat
                 case self::STATUS_CHARGEBACK_ACCEPT:            // chargeback acceptat
                 case self::STATUS_SCHEDULED:
-                case self::STATUS_3D_AUTH:
                 case self::STATUS_CHARGEBACK_REPRESENTMENT:
                 case self::STATUS_REVERSED:
                 case self::STATUS_PENDING_ANY:
@@ -230,58 +254,60 @@ class IPN extends Request{
                 case self::STATUS_PENDING:
                 case self::STATUS_ERROR:                        // error
                 case self::STATUS_DECLINED:                     // declined
+                    /**
+                     * payment declined / has error / Not yet terminated...
+                     */
+                    $orderLog = 'payment declined'; // Here, can create a log for your order...
+                break;
                 case self::STATUS_FRAUD:                        // fraud
                     /**
                      * payment status is in fraud, reviw the payment
                      */
-                    $orderLog = 'payment in reviwing';
-                    // hear, can make Log for $orderLog
+                    $orderLog = 'payment in reviwing'; // Here, can create a log for your order...
+                break;
+                case self::STATUS_3D_AUTH:
+                    /**
+                     * need Verify Auth
+                     */
+                    $orderLog = 'The payment needs to be signed by the user.'; // Here, can create a log for your order...
                 break;
                 case self::STATUS_PENDING_AUTH: // in asteptare de verificare pentru tranzactii autorizate
                     /**
                      * update payment status, last modified date&time in your system
                      */
-                    $orderLog = 'update payment status, last modified date&time in your system';
-                    // hear, can make Log for $orderLog;
+                    $orderLog = 'update payment status, last modified date&time in your system'; // Here, can create a log for your order...;
                 break;
-                
                 case self::STATUS_PAID: // capturate (card)
                 case self::STATUS_CONFIRMED:
                     /**
                      * payment was confirmed; deliver goods
                      */
-                    $orderLog = 'payment was confirmed; deliver goods';
-                    // hear, can make Log for $orderLog
+                    $orderLog = 'payment was confirmed; deliver goods'; // Here, can create a log for your order...
                 break;
-                
                 case self::STATUS_CREDIT: // capturate si apoi refund
                     /**
                      * a previously confirmed payment eas refinded; cancel goods delivery
                      */
-                    $orderLog = 'a previously confirmed payment eas refinded; cancel goods delivery';
-                    // hear, can make Log for $orderLog
+                    $orderLog = 'a previously confirmed payment eas refinded; cancel goods delivery'; // Here, can create a log for your order...
                 break;
-                
                 case self::STATUS_CANCELED: // void
                     /**
                      * payment was cancelled; do not deliver goods
                      */
-                    $orderLog = 'payment was cancelled; do not deliver goods';
-                    // hear, can make Log for $orderLog
+                    $orderLog = 'payment was cancelled; do not deliver goods'; // Here, can create a log for your order...
                 break;
-                }
-            
+            }            
         } catch(\Exception $e)
         {
             $outputData['errorType']	= self::ERROR_TYPE_PERMANENT;
             $outputData['errorCode']	= ($e->getCode() != 0) ? $e->getCode() : self::E_VERIFICATION_FAILED_GENERAL;
             $outputData['errorMessage']	= $e->getMessage();
             
-            $setRealTimeLog = [
+            $exceptionLog = [
                             "IPN - Error"  =>  "Hash Data is not matched with subject",
                             "ipnMsgError"  => 'ERROR_TYPE_PERMANENT -> E_VERIFICATION_FAILED_GENERAL'
                             ];
-            // Here, can make log for debugging.
+            // Here, can create a log for your debugging... 
         }
 
         return $outputData;

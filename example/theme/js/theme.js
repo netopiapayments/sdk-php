@@ -24,10 +24,14 @@ $(document).ready(() => {
     history.replaceState(null, null, newUrl);
   });
 
+  $('#realTimeLog-tab').on("click", function() {
+    getLog();
+  });
 
-  getLog();       // to loade Real time Log
-  // getIpnLog();    // to loade IPN log
-  // getReturnLog(); // to loade success page Log
+  // $('#home-tab').on("click", function() {
+  //   getLog();
+  // });
+  
 });
 
 
@@ -38,7 +42,7 @@ function getLog() {
       dataType: 'text',
       success: function(text) {
           $("#containerDiv").html(text);
-          setTimeout(getLog, 3000); // refresh every 3 seconds
+            setTimeout(getLog, 10000); // refresh every 3 seconds
       }
   })
 }

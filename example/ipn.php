@@ -16,8 +16,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Log
-$setRealTimeLog = ["IPN"    =>  "IPN Is hitting"];
-log::setRealTimeLog($setRealTimeLog);
+log::setRealTimeLog(array("IPN"    =>  "IPN Is hitting. ".time()));
 log::logHeader();
 
 /**
@@ -37,6 +36,9 @@ $ntpIpn->alg               = 'RS512';
 $ntpIpn->publicKeyStr = $_ENV['NETOPIA_PUBLIC_KEY'];
 
 $ipnResponse = $ntpIpn->verifyIPN();
+
+// Log
+log::setRealTimeLog(array("IPN_RESPUNSE"    =>  json_encode($ipnResponse)));
 
 /**
  * IPN Output

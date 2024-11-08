@@ -41,45 +41,46 @@ $statusPayment->isLive              = $_ENV['PAYMENT_LIVE_MODE'];
  * Validate, set parameters & get payment status
  */
 $statusPayment->validateParam();
-$jsonStatusPayment = $statusPayment->setStatus();
+$jsonStatusPayment = $statusPayment->setStatus(); 
 $jsonStatusResult  = $statusPayment->getStatus($jsonStatusPayment);
-$paymentStatustArr = json_decode($jsonStatusResult);
+$paymentStatustObj = json_decode($jsonStatusResult);
+$payReturnArrData = $paymentStatustObj;
 
-switch ($paymentStatustArr->data->error->code) {
-    case "0":
-        $payReturnArrData = $paymentStatustArr;
-        break;
-    
+log::setBackendLog($jsonStatusResult);
+log::setRealTimeLog(array("paymentStatus" => $paymentStatustObj->message));
+log::setRealTimeLog(array("paymentStatus" => $paymentStatustObj->data->error->message));
+
+switch ($paymentStatustObj->data->error->code) {
     case "100":
-        /**
-         * Define verifyAuth
-         */
+        if($paymentStatustObj->data->payment->status == 15) {
+            /**
+             * Define verifyAuth
+             */
 
-        $verifyAuth = new VerifyAuth();
-        $verifyAuth->apiKey              = $_ENV['NETOPIA_API_KEY'];                                                                // Your Api KEY
-        $verifyAuth->authenticationToken = isset($_COOKIE['authenticationToken']) ? $_COOKIE['authenticationToken'] : null;
-        $verifyAuth->ntpID               = isset($_COOKIE['ntpID']) ? $_COOKIE['ntpID'] : null;
-        $verifyAuth->postData            = $_POST;                                                                                  // Parameter passed by bank ,...
-        $verifyAuth->isLive              = $_ENV['PAYMENT_LIVE_MODE'];
+            $verifyAuth = new VerifyAuth();
+            $verifyAuth->apiKey              = $_ENV['NETOPIA_API_KEY'];                                                                // Your Api KEY
+            $verifyAuth->authenticationToken = isset($_COOKIE['authenticationToken']) ? $_COOKIE['authenticationToken'] : null;
+            $verifyAuth->ntpID               = isset($_COOKIE['ntpID']) ? $_COOKIE['ntpID'] : null;
+            $verifyAuth->postData            = $_POST;                                                                                  // Parameter passed by bank ,...
+            $verifyAuth->isLive              = $_ENV['PAYMENT_LIVE_MODE'];
 
-
-        /**
-         * Set params for /payment/card/verify-auth
-         * Send request to /payment/card/verify-auth
-         * @return 
-         *  Json string
-         */
-        $jsonAuthParam = $verifyAuth->setVerifyAuth();
-        $paymentResult = $verifyAuth->sendRequestVerifyAuth($jsonAuthParam);
-        $paymentResultArr = json_decode($paymentResult);
-
-        $payReturnArrData = $paymentResultArr;
-        break;
-    
+            /**
+             * Set params for /payment/card/verify-auth
+             * Send request to /payment/card/verify-auth
+             * @return 
+             *  Json string
+             */
+            $jsonAuthParam = $verifyAuth->setVerifyAuth();
+            $paymentResult = $verifyAuth->sendRequestVerifyAuth($jsonAuthParam);
+            $paymentResultArr = json_decode($paymentResult);
+            $payReturnArrData = $paymentResultArr;
+            log::setLog("100", $paymentResult, array("backurl - status 100 - verifyAuth result" => $paymentResult));
+        }
+    break;
     default:
         # code...
         // die("Do Error Handelling ;-) ");
-        break;
+    break;
 }
 
 ?>
